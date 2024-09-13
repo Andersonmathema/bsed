@@ -1,7 +1,5 @@
 FROM python:3.12-slim
 
-EXPOSE 8501
-
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
@@ -10,9 +8,15 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-#RUN git clone https://github.com/<CONTA>/<REPO.git .
-RUN git clone https://github.com/Andersonmathema/exibidor_de_arquivos.git .
+# Clonar o repositório
+RUN git clone https://github.com/Andersonmathema/bsed.git .
 
+# Instalar dependências
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Copiar o arquivo postgres.py para o diretório de trabalho
+COPY postgres.py .
+
+# Executar o script postgres.py
+CMD ["python3", "/app/postgres.py"]
+
