@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import sql
 from dotenv import load_dotenv
 import pandas as pd
 import os
@@ -8,6 +9,33 @@ from login import acesso_turma
 load_dotenv()
 
 caminho_csv = './file.csv'  # A partir do diretório atual
+
+def criar_banco():
+    try:
+        conn = psycopg2.connect(
+            dbname="postgres",  # Conecta ao banco padrão do PostgreSQL
+            user=os.getenv('PG_USER'),
+            password=os.getenv('PG_PASSWORD'),
+            host=os.getenv('PG_HOST'),
+            port=os.getenv('PG_PORT')
+        )
+        conn.autocommit = True  # Necessário para criar um banco de dados
+        cur = conn.cursor()
+
+        # Cria o banco de dados "escola" se ele não existir
+        cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (os.getenv('PG_DB'),))
+        exists = cur.fetchone()
+        if not exists:
+            cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(os.getenv('PG_DB'))))
+            print(f"Banco de dados '{os.getenv('PG_DB')}' criado com sucesso.")
+        else:
+            print("Banco de dados 'escola' já existe.")
+
+        cur.close()
+        conn.close()
+
+    except Exception as e:
+        print(f"Erro ao criar banco de dados: {e}")
 
 
 def conectar_banco():
@@ -91,7 +119,9 @@ def inserir_dados_no_banco():
         raise ValueError(f"O arquivo CSV deve conter as seguintes colunas: {colunas_esperadas}")
     
     # Garantir que a coluna de data esteja no formato correto
-    df['Data de Nascimento'] = pd.to_datetime(df['Data de Nascimento'], errors='coerce')
+    # Definir que o dia vem antes do mês
+    df['Data de Nascimento'] = pd.to_datetime(df['Data de Nascimento'], errors='coerce', dayfirst=True)
+
     
     return df
 
@@ -135,7 +165,7 @@ def popular_tabelas():
     
 
 if __name__ == '__main__':
-    
+    criar_banco()
     criar_tabelas()
     acesso_turma()
     popular_tabelas()

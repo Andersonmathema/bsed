@@ -14,9 +14,9 @@ RUN git clone https://github.com/Andersonmathema/bsed.git .
 # Instalar dependências
 RUN pip3 install -r requirements.txt
 
-# Copiar o arquivo postgres.py para o diretório de trabalho
+# Copiar o script postgres.py
 COPY postgres.py .
 
 # Executar o script postgres.py
-CMD ["python3", "/app/postgres.py"]
+CMD ["python3", "postgres.py"]
 

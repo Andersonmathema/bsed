@@ -95,7 +95,7 @@ def acesso_turma():
             cabecalho = [coluna.text for coluna in cabecalho_elementos]
             time.sleep(2)
             cabecalho.append('Turma')
-            time.sleep(2)
+            time.sleep(2)            
             df = pd.DataFrame(dados, columns=cabecalho)
             df = df.drop(columns=['Reiniciar Senha', 'Visualizar', 'Nº de chamada'])    
             df = df.dropna(how='all')
